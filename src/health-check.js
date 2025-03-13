@@ -1,13 +1,12 @@
 const axios = require('axios');
 require('dotenv').config();
 
-// Configuration (from .env or environment variables)
+// Configuration from environment variables
 const SERVICE_URL = process.env.SERVICE_URL || 'http://localhost:5001';
 const API_KEY = process.env.API_KEY || 'your-local-api-key';
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-// Send notification to Telegram
 async function sendTelegramNotification(message) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.log('Telegram notification skipped: Missing bot token or chat ID');
@@ -27,7 +26,6 @@ async function sendTelegramNotification(message) {
   }
 }
 
-// Main health check function
 async function checkServiceHealth() {
   try {
     console.log(`Checking service health at ${SERVICE_URL}/ping...`);
@@ -45,7 +43,7 @@ async function checkServiceHealth() {
     console.log(`Service responded in ${responseTime}ms`);
     console.log('Status code:', response.status);
 
-    if (response.status !== 200 || response.data.status !== 'success') {
+    if (response.status !== 200 || (response.data && response.data.status !== 'success')) {
       throw new Error('Service returned unhealthy status');
     }
 
@@ -54,7 +52,7 @@ async function checkServiceHealth() {
   } catch (error) {
     console.error('❌ Service health check failed:', error.message);
 
-    // Send Telegram notification in Bulgarian with improved formatting
+    // Format and send Telegram notification
     const currentDate = new Date();
     const formattedDate = new Intl.DateTimeFormat('bg-BG', {
       year: 'numeric',
@@ -68,17 +66,18 @@ async function checkServiceHealth() {
     const errorMessage = `⚠️ <b>Dekom Node Backend НЕ РАБОТИ!</b> ⚠️\n\n<b>Услуга:</b> API Сървър\n<b>URL:</b> ${SERVICE_URL}\n\n<b>Проблем:</b> Услугата не отговаря правилно\n<b>Грешка:</b> ${error.message}\n<b>Време:</b> ${formattedDate}`;
     await sendTelegramNotification(errorMessage);
 
+    // Exit with error code for GitHub Actions
     if (process.env.GITHUB_ACTIONS) {
       process.exit(1);
     }
-
     return false;
   }
 }
 
-// If running directly (not imported)
+// Run the health check if this file is executed directly
 if (require.main === module) {
   checkServiceHealth();
 }
 
-module.exports = { checkServiceHealth, sendTelegramNotification };
+// Export for testing or if needed elsewhere
+module.exports = { checkServiceHealth };

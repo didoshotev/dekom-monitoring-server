@@ -1,0 +1,31 @@
+name: Main Service Health Check
+
+on:
+  schedule:
+    # Run every 10 minutes
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # Allows manual triggering for testing
+
+jobs:
+  health_check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run health check script
+        env:
+          SERVICE_URL: ${{ secrets.SERVICE_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node src/health-check.js

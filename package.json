@@ -4,19 +4,13 @@
   "description": "Server to monitor health of main Dekom service",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/health-check.js",
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "check": "node src/health-check.js"
   },
   "dependencies": {
     "axios": "^1.8.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "helmet": "^8.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.9"
+    "dotenv": "^16.4.7"
   }
 }
